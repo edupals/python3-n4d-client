@@ -1,4 +1,5 @@
 import xmlrpc.client
+import ssl
 
 UNKNOWN_CLASS=-40
 UNKNOWN_METHOD=-30
@@ -56,15 +57,15 @@ class Credential:
         self.password=password
         self.key=key
         
-        def get(self):
-            if (self.auth_type==AUTH_ANONYMOUS):
-                return ""
-            
-            if (self.auth_type==AUTH_PASSWORD):
-                return [self.user,self.password]
-            
-            if (self.auth_type==AUTH_KEY):
-                return [self.user,self.key]
+    def get(self):
+        if (self.auth_type==AUTH_ANONYMOUS):
+            return ""
+        
+        if (self.auth_type==AUTH_PASSWORD):
+            return [self.user,self.password]
+        
+        if (self.auth_type==AUTH_KEY):
+            return [self.user,self.key]
     
 class Proxy:
     def __init__(self,client,name):
@@ -73,9 +74,12 @@ class Proxy:
     
     def call(self,*args):
         print("call "+self.client.server+"@"+str(self.client.port)+":"+self.name+":"+self.method+"("+str(args)+")")
-        server = SimpleXMLRPCServer((self.client.server, self.client.port))
         
-        response = server.do()
+        context=ssl._create_unverified_context()
+        proxy = xmlrpc.client.ServerProxy("%s:%d"%(self.client.server, self.client.port),context=context)
+        
+        # method(auth,class,args...)
+        response = getattr(proxy,self.method)(self.client.credential.get(),self.name,*args)
         
         if (("msg" in response) and ("status" in response) and ("return" in response)):
             status=response["status"]
@@ -90,12 +94,12 @@ class Proxy:
                 raise UserNotAllowedError(self.client.credential.user,self.name,self.method)
             
             if (status==AUTHENTICATION_ERROR):
-                pass
+                raise AuthenticationError(self.client.credential.user)
             
             if (status==INVALID_RESPONSE):
                 raise InvalidMethodResponseError(self.name,self.method)
         else:
-            raise InvalidServerResponseError()
+            raise InvalidServerResponseError(self.client.server)
         
         return response["return"]
     
