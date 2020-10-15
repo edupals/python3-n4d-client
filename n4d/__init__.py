@@ -25,8 +25,8 @@ class UserNotAllowedError(Exception):
         super().__init__(self,"%s not allowed to %s::%s()"%(user,name,method))
 
 class AuthenticationError(Exception):
-    def __init__(self,name):
-        super().__init__(self,"Authetication failed for user %s"%name)
+    def __init__(self,user):
+        super().__init__(self,"Authetication failed for user %s"%user)
         
 class InvalidMethodResponseError(Exception):
     def __init__(self,name,method):
@@ -43,17 +43,28 @@ AUTH_KEY=3
 class Credential:
     def __init__(self,user=None,password=None,key=None):
 
-        self.auth_type=AUTH_ANONYMOUS
-
-        if (user and password):
-            self.auth_type=AUTH_PASSWORD
-            
-        if (key):
-            self.auth_type=AUTH_KEY
+        if (user):
+            if (password):
+                self.auth_type=AUTH_PASSWORD
+                
+            if (key):
+                self.auth_type=AUTH_KEY
+        else:
+            self.auth_type=AUTH_ANONYMOUS
         
         self.user=user
         self.password=password
         self.key=key
+        
+        def get(self):
+            if (self.auth_type==AUTH_ANONYMOUS):
+                return ""
+            
+            if (self.auth_type==AUTH_PASSWORD):
+                return [self.user,self.password]
+            
+            if (self.auth_type==AUTH_KEY):
+                return [self.user,self.key]
     
 class Proxy:
     def __init__(self,client,name):
@@ -76,7 +87,7 @@ class Proxy:
                 raise UnknownMethodError(self.name,self.method)
             
             if (status==USER_NOT_ALLOWED):
-                pass
+                raise UserNotAllowedError(self.client.credential.user,self.name,self.method)
             
             if (status==AUTHENTICATION_ERROR):
                 pass
@@ -93,10 +104,10 @@ class Proxy:
         return self.call
     
 class Client:
-    
-    def __init__(self,server,port):
+    def __init__(self,server,port,user=None,password=None,key=None):
         self.server=server
         self.port=port
+        self.credential=Credential(user,password,key)
     
     def __getattr__(self,name):
         return Proxy(self,name)
