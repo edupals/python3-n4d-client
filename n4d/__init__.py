@@ -79,35 +79,47 @@ class Proxy:
     def call(self,*args):
         print("call "+self.client.server+"@"+str(self.client.port)+":"+self.name+":"+self.method+"("+str(args)+")")
         
-        context=ssl._create_unverified_context()
-        proxy = xmlrpc.client.ServerProxy("%s:%d"%(self.client.server, self.client.port),context=context)
+        try:
+            context=ssl._create_unverified_context()
+            proxy = xmlrpc.client.ServerProxy("%s:%d"%(self.client.server, self.client.port),context=context)
+            
+            # method(auth,class,args...)
+            response = getattr(proxy,self.method)(self.client.credential.get(),self.name,*args)
+            
+            if (("msg" in response) and ("status" in response) and ("return" in response)):
+                status=response["status"]
+                
+                if (status==UNKNOWN_CLASS):
+                    raise UnknownClassError(self.name)
+                
+                if (status==UNKNOWN_METHOD):
+                    raise UnknownMethodError(self.name,self.method)
+                
+                if (status==USER_NOT_ALLOWED):
+                    raise UserNotAllowedError(self.client.credential.user,self.name,self.method)
+                
+                if (status==AUTHENTICATION_ERROR):
+                    raise AuthenticationError(self.client.credential.user)
+                
+                if (status==INVALID_RESPONSE):
+                    raise InvalidMethodResponseError(self.name,self.method)
+                
+                if (status==CALL_FAILED):
+                    # hardcoded -1
+                    raise CallFailedError(self.name,self.method,-1)
+            else:
+                raise InvalidServerResponseError(self.client.server)
         
-        # method(auth,class,args...)
-        response = getattr(proxy,self.method)(self.client.credential.get(),self.name,*args)
+        except xmlrpc.client.Fault as err:
+            print("[1]:%s"%err.errrmsg)
+            return None
         
-        if (("msg" in response) and ("status" in response) and ("return" in response)):
-            status=response["status"]
-            
-            if (status==UNKNOWN_CLASS):
-                raise UnknownClassError(self.name)
-            
-            if (status==UNKNOWN_METHOD):
-                raise UnknownMethodError(self.name,self.method)
-            
-            if (status==USER_NOT_ALLOWED):
-                raise UserNotAllowedError(self.client.credential.user,self.name,self.method)
-            
-            if (status==AUTHENTICATION_ERROR):
-                raise AuthenticationError(self.client.credential.user)
-            
-            if (status==INVALID_RESPONSE):
-                raise InvalidMethodResponseError(self.name,self.method)
-            
-            if (status==CALL_FAILED):
-                # hardcoded -1
-                raise CallFailedError(self.name,self.method,-1)
-        else:
-            raise InvalidServerResponseError(self.client.server)
+        except xmlrpc.client.ProtocolError as err:
+            print("[2]:%s"%err.errrmsg)
+            return None
+        except Exception as err:
+            print("Unhandled error")
+            return None
         
         return response["return"]
     
