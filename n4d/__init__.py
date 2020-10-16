@@ -6,6 +6,7 @@ UNKNOWN_METHOD=-30
 USER_NOT_ALLOWED=-20
 AUTHENTICATION_ERROR=-10
 INVALID_RESPONSE=-5
+INVALID_ARGUMENTS=-3
 CALL_FAILED=-1
 CALL_SUCCESSFUL=0
 
@@ -36,6 +37,10 @@ class InvalidMethodResponseError(Exception):
 class InvalidServerResponseError(Exception):
     def __init__(self,server):
         super().__init__(self,"Invalid response from server %s "%server)
+
+class InvalidArgumentsError(Exception):
+    def __init__(self,name,method):
+        super().__init__(self,"Invalid number of arguments for  %s::%s()"%(name,method))
 
 class CallFailedError(Exception):
     def __init__(self,name,method,code):
@@ -77,7 +82,7 @@ class Proxy:
         self.name=name
     
     def call(self,*args):
-        print("call "+self.client.server+"@"+str(self.client.port)+":"+self.name+":"+self.method+"("+str(args)+")")
+        #print("call "+self.client.server+"@"+str(self.client.port)+":"+self.name+":"+self.method+"("+str(args)+")")
         
         try:
             context=ssl._create_unverified_context()
@@ -104,23 +109,18 @@ class Proxy:
                 if (status==INVALID_RESPONSE):
                     raise InvalidMethodResponseError(self.name,self.method)
                 
+                if (status==INVALID_ARGUMENTS):
+                    raise InvalidArgumentsError(self.name,self.method)
+                    
                 if (status==CALL_FAILED):
                     # hardcoded -1
                     raise CallFailedError(self.name,self.method,-1)
             else:
                 raise InvalidServerResponseError(self.client.server)
         
-        except xmlrpc.client.Fault as err:
-            print("[1]:%s"%err.errrmsg)
-            return None
-        
-        except xmlrpc.client.ProtocolError as err:
-            print("[2]:%s"%err.errrmsg)
-            return None
         except Exception as err:
-            print("Unhandled error")
-            return None
-        
+            raise ServerError(str(err))
+
         return response["return"]
     
     def __getattr__(self,method):
