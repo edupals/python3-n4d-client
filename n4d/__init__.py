@@ -45,7 +45,11 @@ class InvalidArgumentsError(Exception):
 class CallFailedError(Exception):
     def __init__(self,name,method,code):
         super().__init__(self,"%s::%s() returned error code:%d"%(name,method,code))
-        
+
+class UnknownCodeError(Exception):
+    def __init__(self,name,method,code):
+        super().__init__(self,"%s::%s() returned an unknown error code:%d"%(name,method,code))
+
 AUTH_ANONYMOUS=1
 AUTH_PASSWORD=2
 AUTH_KEY=3
@@ -134,6 +138,9 @@ class Proxy:
                 if (status==CALL_FAILED):
                     # hardcoded -1
                     raise CallFailedError(self.name,self.method,-1)
+                else:
+                    raise UnknownCodeError(self.name,self.method,status)
+                
             else:
                 raise InvalidServerResponseError(self.client.server)
         
