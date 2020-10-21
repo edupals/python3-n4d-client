@@ -81,6 +81,25 @@ class Proxy:
         self.client=client
         self.name=name
     
+    def _validate_response(self,response):
+        
+        if (type(response)!=dict):
+            return False
+        
+        v = response.get("msg")
+        if (type(v)!=str):
+            return False
+        
+        v = response.get("status")
+        if (type(v)!=int):
+            return False
+        
+        v = response.get("return")
+        if (v==None):
+            return False
+        
+        return True
+    
     def call(self,*args):
         #print("call "+self.client.server+"@"+str(self.client.port)+":"+self.name+":"+self.method+"("+str(args)+")")
         
@@ -91,7 +110,7 @@ class Proxy:
             # method(auth,class,args...)
             response = getattr(proxy,self.method)(self.client.credential.get(),self.name,*args)
             
-            if (("msg" in response) and ("status" in response) and ("return" in response)):
+            if (self._validate_response(response)):
                 status=response["status"]
                 
                 if (status==UNKNOWN_CLASS):
