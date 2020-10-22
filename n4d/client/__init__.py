@@ -98,7 +98,7 @@ class Proxy:
         
         if (v==CALL_FAILED):
             v = response.get("error_code")
-            if (type(v)!=int)_
+            if (type(v)!=int):
                 return False
         
         v = response.get("msg")
