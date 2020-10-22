@@ -1,6 +1,6 @@
-import n4d
+import n4d.client
 
-c = n4d.Client("https://localfhost",9779)
+c = n4d.client.Client("https://localfhost",9779)
 try:
     b = c.VariablesManager.listvars()
     print(b)
