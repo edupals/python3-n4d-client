@@ -43,8 +43,10 @@ class InvalidArgumentsError(Exception):
         super().__init__(self,"Invalid number of arguments for  %s::%s()"%(name,method))
 
 class CallFailedError(Exception):
-    def __init__(self,name,method,code):
+    def __init__(self,name,method,code,message):
         super().__init__(self,"%s::%s() returned error code:%d"%(name,method,code))
+        self.code=code
+        self.message=message
 
 class UnknownCodeError(Exception):
     def __init__(self,name,method,code):
@@ -90,12 +92,17 @@ class Proxy:
         if (type(response)!=dict):
             return False
         
-        v = response.get("msg")
-        if (type(v)!=str):
-            return False
-        
         v = response.get("status")
         if (type(v)!=int):
+            return False
+        
+        if (v==CALL_FAILED):
+            v = response.get("error_code")
+            if (type(v)!=int)_
+                return False
+        
+        v = response.get("msg")
+        if (type(v)!=str):
             return False
         
         v = response.get("return")
@@ -136,8 +143,10 @@ class Proxy:
                     raise InvalidArgumentsError(self.name,self.method)
                     
                 if (status==CALL_FAILED):
-                    # hardcoded -1
-                    raise CallFailedError(self.name,self.method,-1)
+                    raise CallFailedError(self.name,self.method,response["error_code"],response["msg"])
+                
+                if (status==CALL_SUCCESSFUL):
+                    return response["return"]
                 else:
                     raise UnknownCodeError(self.name,self.method,status)
                 
@@ -146,8 +155,8 @@ class Proxy:
         
         except Exception as err:
             raise ServerError(str(err))
-
-        return response["return"]
+        
+        # def call
     
     def __getattr__(self,method):
         self.method=method
