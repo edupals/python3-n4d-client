@@ -73,6 +73,7 @@ class UnknownCodeError(Exception):
 AUTH_ANONYMOUS=1
 AUTH_PASSWORD=2
 AUTH_KEY=3
+AUTH_MASTER_KEY=4
 
 class Credential:
     def __init__(self,user=None,password=None,key=None):
@@ -84,7 +85,10 @@ class Credential:
             if (key):
                 self.auth_type=AUTH_KEY
         else:
-            self.auth_type=AUTH_ANONYMOUS
+            if (key):
+                self.auth_type=AUTH_MASTER_KEY
+            else:
+                self.auth_type=AUTH_ANONYMOUS
         
         self.user=user
         self.password=password
@@ -99,6 +103,9 @@ class Credential:
         
         if (self.auth_type==AUTH_KEY):
             return [self.user,self.key]
+        
+        if (self.auth_type==AUTH_MASTER_KEY):
+            return self.key
     
 class Proxy:
     def __init__(self,client,name,method=""):
@@ -206,6 +213,23 @@ class Client:
     def get_methods(self):
         p = Proxy(self,None,"get_methods")
         return p.call()
+    
+    def get_variable(self,name):
+        p = Proxy(self,None,"get_variable")
+        return p.call(name)
+    
+    def set_variable(self,credential = None,name,value,extra_info = None):
+        p = Proxy(self,None,"set_variable")
+        
+        if (credential==None):
+            credential = self.credential
+        
+        return p.call(credential.get(),name,value,extra_info)
+    
+    def get_variables(self,full_info = False)
+        p = Proxy(self,None,"get_variables")
+        
+        return p.call(full_info)
     
     def __getattr__(self,name):
         return Proxy(self,name)
