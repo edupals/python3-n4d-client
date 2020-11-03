@@ -101,11 +101,12 @@ class Credential:
             return [self.user,self.key]
     
 class Proxy:
-    def __init__(self,client,name):
+    def __init__(self,client,name,method=""):
         self.client=client
         self.name=name
+        self.method=method
     
-    def _validate_response(self,response):
+    def _validate_format(self,response):
         
         if (type(response)!=dict):
             return False
@@ -129,6 +130,7 @@ class Proxy:
         
         return True
     
+    
     def call(self,*args):
         #print("call "+self.client.server+"@"+str(self.client.port)+":"+self.name+":"+self.method+"("+str(args)+")")
         
@@ -136,10 +138,13 @@ class Proxy:
             context=ssl._create_unverified_context()
             proxy = xmlrpc.client.ServerProxy("%s:%d"%(self.client.server, self.client.port),context=context)
             
-            # method(auth,class,args...)
-            response = getattr(proxy,self.method)(self.client.credential.get(),self.name,*args)
+            if (self.name==None):
+                response = getattr(proxy,self.method)(*args)
+            else:
+                # method(auth,class,args...)
+                response = getattr(proxy,self.method)(self.client.credential.get(),self.name,*args)
             
-            if (self._validate_response(response)):
+            if (self._validate_format(response)):
                 status=response["status"]
                 
                 if (status==UNKNOWN_CLASS):
@@ -185,6 +190,22 @@ class Client:
         self.server=server
         self.port=port
         self.credential=Credential(user,password,key)
+    
+    def crate_ticket(self,user):
+        p = Proxy(self,None,"create_ticket")
+        return p.call(user)
+    
+    def get_ticket(self,user,password):
+        p = Proxy(self,None,"get_ticket")
+        return p.call(user,password)
+    
+    def validate_user(self,user,password):
+        p = Proxy(self,None,"validate_user")
+        return p.call(user,password)
+        
+    def get_methods(self):
+        p = Proxy(self,None,"get_methods")
+        return p.call()
     
     def __getattr__(self,name):
         return Proxy(self,name)
