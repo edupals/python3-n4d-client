@@ -19,6 +19,8 @@ this program. If not, see <http://www.gnu.org/licenses/>.
 import xmlrpc.client
 import ssl
 
+import os
+
 UNKNOWN_CLASS=-40
 UNKNOWN_METHOD=-30
 USER_NOT_ALLOWED=-20
@@ -45,9 +47,14 @@ class UserNotAllowedError(Exception):
         super().__init__(self,"%s not allowed to %s::%s()"%(user,name,method))
 
 class AuthenticationError(Exception):
-    def __init__(self,user):
-        super().__init__(self,"Authetication failed for user %s"%user)
-        
+    def __init__(self,credential):
+        if (credential.auth_type==AUTH_PASSWORD or credential.auth_type==AUTH_KEY):
+            super().__init__(self,"Authetication failed for user %s"%credential.user)
+        elif (credential.auth_type==AUTH_ANONYMOUS):
+            super().__init__(self,"Authetication failed for anonymous")
+        else:
+            super().__init__(self,"Authetication failed for master key")
+            
 class InvalidMethodResponseError(Exception):
     def __init__(self,name,method):
         super().__init__(self,"Invalid response from %s::%s()"%(name,method))
@@ -69,6 +76,14 @@ class CallFailedError(Exception):
 class UnknownCodeError(Exception):
     def __init__(self,name,method,code):
         super().__init__(self,"%s::%s() returned an unknown error code:%d"%(name,method,code))
+
+class InvalidCredentialError(Exception):
+    def __init__(self,message):
+        super().__init__(self,message)
+
+class CreateTicketError(Exception):
+    def __init__(self,message):
+        super().__init__(self,message)
 
 AUTH_ANONYMOUS=1
 AUTH_PASSWORD=2
@@ -164,7 +179,7 @@ class Proxy:
                     raise UserNotAllowedError(self.client.credential.user,self.name,self.method)
                 
                 if (status==AUTHENTICATION_ERROR):
-                    raise AuthenticationError(self.client.credential.user)
+                    raise AuthenticationError(self.client.credential)
                 
                 if (status==INVALID_RESPONSE):
                     raise InvalidMethodResponseError(self.name,self.method)
@@ -198,17 +213,42 @@ class Client:
         self.port=port
         self.credential=Credential(user,password,key)
     
-    def crate_ticket(self,user):
-        p = Proxy(self,None,"create_ticket")
-        return p.call(user)
+    def create_ticket(self):
+        if (self.credential.auth_type==AUTH_PASSWORD or self.credential.auth_type==AUTH_KEY):
+            p = Proxy(self,None,"create_ticket")
+            status = p.call(self.credential.user)
+            
+            ticket_path="/run/n4d/tickets/%s"%self.credential.user
+            if (os.path.isfile(ticket_path)):
+                try:
+                    f=open(ticket_path,"rb")
+                    data=f.readline()
+                    f.close()
+                    
+                    return data
+                except:
+                    raise CreateTicketError("Cannot read ticket file")
+            else:
+                raise CreateTicketError("Ticket file does not exists")
+        else:
+            raise InvalidCredentialError("Expected password or key credential")
     
-    def get_ticket(self,user,password):
-        p = Proxy(self,None,"get_ticket")
-        return p.call(user,password)
-    
-    def validate_user(self,user,password):
-        p = Proxy(self,None,"validate_user")
-        return p.call(user,password)
+    def get_ticket(self):
+        if (self.credential.auth_type==AUTH_PASSWORD):
+            p = Proxy(self,None,"get_ticket")
+            return p.call(self.credential.user,self.credential.password)
+        else:
+            raise InvalidCredentialError("Expected password credential")
+
+    def validate_user(self):
+        if (self.credential.auth_type==AUTH_PASSWORD):
+            p = Proxy(self,None,"validate_user")
+            return p.call(self.credential.user,self.credential.password)
+        elif (self.credential.auth_type==AUTH_KEY):
+            p = Proxy(self,None,"validate_user")
+            return p.call(self.credential.user,self.credential.key)
+        else:
+            raise InvalidCredentialError("Expected password or key credential")
         
     def get_methods(self):
         p = Proxy(self,None,"get_methods")
@@ -218,17 +258,16 @@ class Client:
         p = Proxy(self,None,"get_variable")
         return p.call(name)
     
-    def set_variable(self,credential = None,name,value,extra_info = None):
+    def set_variable(self,name,value,extra_info = None):
         p = Proxy(self,None,"set_variable")
-        
-        if (credential==None):
-            credential = self.credential
-        
         return p.call(credential.get(),name,value,extra_info)
     
+    def delete_variable(self,name):
+        p = Proxy(self,None,"delete_variable")
+        return p.call(self.credential.get(),name)
+        
     def get_variables(self,full_info = False)
         p = Proxy(self,None,"get_variables")
-        
         return p.call(full_info)
     
     def __getattr__(self,name):
