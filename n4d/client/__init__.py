@@ -85,6 +85,10 @@ class CreateTicketError(Exception):
     def __init__(self,message):
         super().__init__(self,message)
 
+class UnknownMethodResponseError(Exception):
+    def __init__(self,name,method):
+        super().__init__(self,"Unknown response from %s::%s()"%(name,method))
+
 AUTH_ANONYMOUS=1
 AUTH_PASSWORD=2
 AUTH_KEY=3
@@ -146,12 +150,10 @@ class Proxy:
         if (type(v)!=str):
             return False
         
-        v = response.get("return")
-        if (v==None):
+        if (not "return" in response):
             return False
         
         return True
-    
     
     def call(self,*args):
         #print("call "+self.client.server+"@"+str(self.client.port)+":"+self.name+":"+self.method+"("+str(args)+")")
@@ -196,6 +198,7 @@ class Proxy:
                     raise UnknownCodeError(self.name,self.method,status)
                 
             else:
+                print(response)
                 raise InvalidServerResponseError(self.client.server)
         
         except Exception as err:
@@ -260,13 +263,13 @@ class Client:
     
     def set_variable(self,name,value,extra_info = None):
         p = Proxy(self,None,"set_variable")
-        return p.call(credential.get(),name,value,extra_info)
+        return p.call(self.credential.get(),name,value,extra_info)
     
     def delete_variable(self,name):
         p = Proxy(self,None,"delete_variable")
         return p.call(self.credential.get(),name)
         
-    def get_variables(self,full_info = False)
+    def get_variables(self,full_info = False):
         p = Proxy(self,None,"get_variables")
         return p.call(full_info)
     
