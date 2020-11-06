@@ -11,23 +11,10 @@ try:
     r = c.validate_user()
     print(r)
     
-    c.set_variable("patata",300,"")
-    times=[]
+    c.set_variable("patata",300,{"extra":400})
     
-    a1=time.time()
-    for n in range(1000):
-        d1=time.time()
-        r = c.get_variable("patata")
-        d2=time.time()
-        times.append(d2-d1)
-    a2=time.time()
+    print(c.get_variable("patata",True))
     
-    print(r)
-    
-    for n in range(len(times)):
-        print("%s %f ms"%(n,1000*times[n]))
-    
-    print("total %f seconds"%(a2-a1))
     #r = c.get_methods()
     #print(r)
     

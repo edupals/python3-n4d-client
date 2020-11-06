@@ -167,7 +167,7 @@ class Proxy:
             else:
                 # method(auth,class,args...)
                 response = getattr(proxy,self.method)(self.client.credential.get(),self.name,*args)
-            
+            print(response)
             if (self._validate_format(response)):
                 status=response["status"]
                 
@@ -257,9 +257,9 @@ class Client:
         p = Proxy(self,None,"get_methods")
         return p.call()
     
-    def get_variable(self,name):
+    def get_variable(self,name,info = False):
         p = Proxy(self,None,"get_variable")
-        return p.call(name)
+        return p.call(name,info)
     
     def set_variable(self,name,value,extra_info = None):
         p = Proxy(self,None,"set_variable")
