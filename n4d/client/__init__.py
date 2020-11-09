@@ -81,7 +81,7 @@ class InvalidCredentialError(Exception):
     def __init__(self,message):
         super().__init__(self,message)
 
-class CreateTicketError(Exception):
+class TicketFailedError(Exception):
     def __init__(self,message):
         super().__init__(self,message)
 
@@ -230,9 +230,9 @@ class Client:
                     
                     return data
                 except:
-                    raise CreateTicketError("Cannot read ticket file")
+                    raise TicketFailedError("Cannot read ticket file")
             else:
-                raise CreateTicketError("Ticket file does not exists")
+                raise TicketFailedError("Ticket file does not exists")
         else:
             raise InvalidCredentialError("Expected password or key credential")
     
