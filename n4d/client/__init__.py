@@ -94,6 +94,44 @@ AUTH_PASSWORD=2
 AUTH_KEY=3
 AUTH_MASTER_KEY=4
 
+class Key:
+    def __init__(self,key=""):
+        self.value=key
+        
+    def valid(self):
+        if len(self.value)==50):
+            for c in self.value:
+                tmp=ord(c)
+                if (not ((tmp>=ord('0') and tmp<=ord('9')) or
+                     (tmp>=ord('a') and tmp<=ord('z')) or 
+                     (tmp>=ord('A') and tmp<=ord('A')))):
+                    return False
+                    
+            return True
+        
+        return False
+    
+    @classmethod
+    def master_key(cls):
+        pass
+    
+    @classmethod
+    def user_key(cls,user):
+        
+        ticket_path="/run/n4d/tickets/%s"%user
+            if (os.path.isfile(ticket_path)):
+                try:
+                    f=open(ticket_path,"rb")
+                    data=f.readline()
+                    f.close()
+                    
+                    return Key(data)
+                except:
+                    return Key()
+            else:
+                return Key()
+    
+    
 class Credential:
     def __init__(self,user=None,password=None,key=None):
 
@@ -121,10 +159,10 @@ class Credential:
             return [self.user,self.password]
         
         if (self.auth_type==AUTH_KEY):
-            return [self.user,self.key]
+            return [self.user,self.key.value]
         
         if (self.auth_type==AUTH_MASTER_KEY):
-            return self.key
+            return self.key.value
     
 class Proxy:
     def __init__(self,client,name,method=""):
