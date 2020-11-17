@@ -259,25 +259,16 @@ class Client:
             p = Proxy(self,None,"create_ticket")
             status = p.call(self.credential.user)
             
-            ticket_path="/run/n4d/tickets/%s"%self.credential.user
-            if (os.path.isfile(ticket_path)):
-                try:
-                    f=open(ticket_path,"rb")
-                    data=f.readline()
-                    f.close()
-                    
-                    return data
-                except:
-                    raise TicketFailedError("Cannot read ticket file")
-            else:
-                raise TicketFailedError("Ticket file does not exists")
+            return Credential(user=self.credential.user,key=Key.user_key(self.credential.user))
         else:
-            raise InvalidCredentialError("Expected password or key credential")
+            raise InvalidCredentialError("Expected password credential")
     
     def get_ticket(self):
         if (self.credential.auth_type==AUTH_PASSWORD):
             p = Proxy(self,None,"get_ticket")
-            return p.call(self.credential.user,self.credential.password)
+            value = p.call(self.credential.user,self.credential.password)
+            
+            return Credential(user=self.credential.user,key=Key(value))
         else:
             raise InvalidCredentialError("Expected password credential")
 
