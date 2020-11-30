@@ -27,6 +27,7 @@ USER_NOT_ALLOWED=-20
 AUTHENTICATION_ERROR=-10
 INVALID_RESPONSE=-5
 INVALID_ARGUMENTS=-3
+UNHANDLED_ERROR=-2
 CALL_FAILED=-1
 CALL_SUCCESSFUL=0
 
@@ -66,6 +67,10 @@ class InvalidServerResponseError(Exception):
 class InvalidArgumentsError(Exception):
     def __init__(self,name,method):
         super().__init__(self,"Invalid number of arguments for  %s::%s()"%(name,method))
+
+class UnhandledError(Exception):
+    def __init__(self,name,method):
+        super().__init__(self,"Unhandled error from  %s::%s()"%(name,method))
 
 class CallFailedError(Exception):
     def __init__(self,name,method,code,message):
@@ -226,7 +231,10 @@ class Proxy:
                 
                 if (status==INVALID_ARGUMENTS):
                     raise InvalidArgumentsError(self.name,self.method)
-                    
+                
+                if (status==UNHANDLED_ERROR):
+                    raise UnhandledError(self.name,self.method)
+                
                 if (status==CALL_FAILED):
                     raise CallFailedError(self.name,self.method,response["error_code"],response["msg"])
                 
@@ -302,6 +310,10 @@ class Client:
         p = Proxy(self,None,"get_variables")
         return p.call(full_info)
     
+    def version(self):
+        p = Proxy(self,None,"version")
+        return p.call()
+        
     def __getattr__(self,name):
         return Proxy(self,name)
     
