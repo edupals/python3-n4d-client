@@ -310,6 +310,10 @@ class Client:
         p = Proxy(self,None,"get_variables")
         return p.call(full_info)
     
+    def version(self):
+        p = Proxy(self,None,"version")
+        return p.call()
+        
     def __getattr__(self,name):
         return Proxy(self,name)
     
