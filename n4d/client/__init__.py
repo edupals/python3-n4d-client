@@ -104,12 +104,12 @@ class Key:
         self.value=key
         
     def valid(self):
-        if len(self.value)==50):
+        if (len(self.value)==50):
             for c in self.value:
                 tmp=ord(c)
                 if (not ((tmp>=ord('0') and tmp<=ord('9')) or
-                     (tmp>=ord('a') and tmp<=ord('z')) or 
-                     (tmp>=ord('A') and tmp<=ord('A')))):
+                        (tmp>=ord('a') and tmp<=ord('z')) or 
+                        (tmp>=ord('A') and tmp<=ord('A')))):
                     return False
                     
             return True
@@ -124,18 +124,18 @@ class Key:
     def user_key(cls,user):
         
         ticket_path="/run/n4d/tickets/%s"%user
-            if (os.path.isfile(ticket_path)):
-                try:
-                    f=open(ticket_path,"rb")
-                    data=f.readline()
-                    f.close()
-                    
-                    return Key(data)
-                except:
-                    return Key()
-            else:
+        
+        if (os.path.isfile(ticket_path)):
+            try:
+                f=open(ticket_path,"rb")
+                data=f.readline()
+                f.close()
+                
+                return Key(data)
+            except:
                 return Key()
-    
+        else:
+            return Key()
     
 class Credential:
     def __init__(self,user=None,password=None,key=None):
@@ -210,7 +210,7 @@ class Proxy:
             else:
                 # method(auth,class,args...)
                 response = getattr(proxy,self.method)(self.client.credential.get(),self.name,*args)
-            print(response)
+            #print(response)
             if (self._validate_format(response)):
                 status=response["status"]
                 
@@ -250,8 +250,13 @@ class Proxy:
         except Exception as err:
             raise ServerError(str(err))
         
-        # def call
-    
+    def __call__(self, *args):
+    # calling Proxy as built in method
+        self.method=self.name
+        self.name=None
+        
+        return self.call(*args)
+        
     def __getattr__(self,method):
         self.method=method
         return self.call
