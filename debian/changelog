@@ -2,7 +2,7 @@ python3-n4d-client (0.1.2.0) focal; urgency=medium
 
   * Master tag: 3066a3233f5354e2030ad32719f3ddb1a91c66f7
 
- -- Enrique MG <quique@rapture>  Thu, 03 Dec 2020 11:55:22 +0100
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Thu, 03 Dec 2020 11:55:22 +0100
 
 python3-n4d-client (0.1.1.3) focal; urgency=medium
 
