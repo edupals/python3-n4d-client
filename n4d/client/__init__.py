@@ -66,11 +66,11 @@ class InvalidServerResponseError(Exception):
 
 class InvalidArgumentsError(Exception):
     def __init__(self,name,method):
-        super().__init__(self,"Invalid number of arguments for  %s::%s()"%(name,method))
+        super().__init__(self,"Invalid number of arguments for %s::%s()"%(name,method))
 
 class UnhandledError(Exception):
-    def __init__(self,name,method):
-        super().__init__(self,"Unhandled error from  %s::%s()"%(name,method))
+    def __init__(self,name,method,traceback):
+        super().__init__(self,"Unhandled error from %s::%s():\n\n%s"%(name,method,traceback))
 
 class CallFailedError(Exception):
     def __init__(self,name,method,code,message):
@@ -117,13 +117,19 @@ class Key:
         return False
     
     @classmethod
-    def master_key(cls):
-        pass
+    def user_key(cls,user):
+        ticket_path="/run/n4d/tickets/%s"%user
+        
+        return Key._load_key(ticket_path)
     
     @classmethod
-    def user_key(cls,user):
+    def master_key(cls):
+        ticket_path="/etc/n4d/key"
         
-        ticket_path="/run/n4d/tickets/%s"%user
+        return Key._load_key(ticket_path)
+    
+    @classmethod
+    def _load_key(cls,ticket_path):
         
         if (os.path.isfile(ticket_path)):
             try:
@@ -188,7 +194,11 @@ class Proxy:
             v = response.get("error_code")
             if (type(v)!=int):
                 return False
-        
+            
+            if (v==UNHANDLED_ERROR):
+                if (not "traceback" in response):
+                    return False
+            
         v = response.get("msg")
         if (type(v)!=str):
             return False
@@ -233,7 +243,7 @@ class Proxy:
                     raise InvalidArgumentsError(self.name,self.method)
                 
                 if (status==UNHANDLED_ERROR):
-                    raise UnhandledError(self.name,self.method)
+                    raise UnhandledError(self.name,self.method,response["traceback"])
                 
                 if (status==CALL_FAILED):
                     raise CallFailedError(self.name,self.method,response["error_code"],response["msg"])
