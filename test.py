@@ -5,18 +5,12 @@ import time
 name=input("User:")
 pwd=getpass()
 
-c = n4d.client.Client("https://127.0.0.1",9800,user=name,password=pwd)
+c = n4d.client.Client("https://127.0.0.1:9800",user=name,password=pwd)
 
-try:
-    r = c.validate_user()
-    print(r)
-    
-    c.set_variable("patata",300,{"extra":400})
-    
-    print(c.get_variable("patata",True))
-    
-    #r = c.get_methods()
-    #print(r)
-    
-except Exception as err:
-    print(err)
+r = c.validate_user()
+print(r)
+
+c.set_variable("patata",300,{"extra":400})
+print(c.get_variable("patata",True))
+
+

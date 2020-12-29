@@ -213,7 +213,7 @@ class Proxy:
         
         try:
             context=ssl._create_unverified_context()
-            proxy = xmlrpc.client.ServerProxy("%s:%d"%(self.client.server, self.client.port),context=context)
+            proxy = xmlrpc.client.ServerProxy(self.client.address,context=context)
             
             if (self.name==None):
                 response = getattr(proxy,self.method)(*args)
@@ -272,9 +272,8 @@ class Proxy:
         return self.call
     
 class Client:
-    def __init__(self,server,port,user=None,password=None,key=None):
-        self.server=server
-        self.port=port
+    def __init__(self,address="https://127.0.0.1:9800",user=None,password=None,key=None):
+        self.address=address
         self.credential=Credential(user,password,key)
     
     def create_ticket(self):
