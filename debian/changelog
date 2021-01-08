@@ -1,3 +1,10 @@
+python3-n4d-client (0.10.0.0) focal; urgency=medium
+
+  * Master tag: 47a061759f12c889d826036c08c7dfa52d96b205 
+  * Added ticket parsing support
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Fri, 08 Jan 2021 15:10:13 +0100
+
 python3-n4d-client (0.9.0.0) focal; urgency=medium
 
   * Master tag: faf337a8148eae07fca8c59e35cf4471a1e49e7c
