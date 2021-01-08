@@ -174,7 +174,29 @@ class Credential:
         
         if (self.auth_type==AUTH_MASTER_KEY):
             return self.key.value
+
+class Ticket:
+    def __init__(self,ticket=""):
+        self._valid=False
+        
+        tmp = ticket.split(' ')
+        
+        if (len(tmp)>=4):
+            if (tmp[0]=="N4DTKV2"):
+                self._address = tmp[1]
+                self._credential = Credential(user=tmp[2],key=Key(tmp[3]))
+                
+                self._valid=self._credential.key.valid()
+        
+    def valid(self):
+        return self._valid
     
+    def get_address(self):
+        return self._address
+    
+    def get_credential(self):
+        return self._credential
+        
 class Proxy:
     def __init__(self,client,name,method=""):
         self.client=client
@@ -272,9 +294,14 @@ class Proxy:
         return self.call
     
 class Client:
-    def __init__(self,address="https://127.0.0.1:9800",user=None,password=None,key=None):
-        self.address=address
-        self.credential=Credential(user,password,key)
+    def __init__(self,address="https://127.0.0.1:9779",user=None,password=None,key=None,ticket=None):
+        
+        if (ticket!=None and ticket.valid()):
+            self.address = ticket.get_address()
+            self.credential = ticket.get_credential()
+        else:
+            self.address=address
+            self.credential=Credential(user,password,key)
     
     def create_ticket(self):
         if (self.credential.auth_type==AUTH_PASSWORD or self.credential.auth_type==AUTH_KEY):

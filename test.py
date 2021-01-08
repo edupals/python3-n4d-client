@@ -5,7 +5,8 @@ import time
 name=input("User:")
 pwd=getpass()
 
-c = n4d.client.Client("https://127.0.0.1:9800",user=name,password=pwd)
+
+c = n4d.client.Client("https://127.0.0.1:9779",user=name,password=pwd)
 
 r = c.validate_user()
 print(r)
