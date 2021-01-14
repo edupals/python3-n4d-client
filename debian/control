@@ -7,8 +7,7 @@ Standards-Version: 3.9.7
 Homepage: https://github.com/edupals/python3-n4d-client
 
 Package: python3-n4d-client
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Provides: python3
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, python3-n4d-base
 Description: python n4d client libs
  Python N4D client library
