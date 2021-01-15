@@ -10,7 +10,7 @@ setup(  name             = "n4d client",
         author_email     = "quiqueiii@gmail.com",
         url              = "https://github.com/edupals/python3-n4d-client",
         package_dir      = {'': '.'},
-        packages         = ['n4d','n4d.client']
+        packages         = ['n4d.client']
      )
 
 
