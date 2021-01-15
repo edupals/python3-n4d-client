@@ -1,3 +1,9 @@
+python3-n4d-client (0.10.2.0) focal; urgency=medium
+
+  * Fixed package path
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Fri, 15 Jan 2021 10:23:39 +0100
+
 python3-n4d-client (0.10.1.0) focal; urgency=medium
 
   * Added python3-n4d-base as dependency
