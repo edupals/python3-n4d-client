@@ -1,3 +1,9 @@
+python3-n4d-client (0.10.1.0) focal; urgency=medium
+
+  * Added python3-n4d-base as dependency
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Thu, 14 Jan 2021 10:31:24 +0100
+
 python3-n4d-client (0.10.0.0) focal; urgency=medium
 
   * Master tag: 47a061759f12c889d826036c08c7dfa52d96b205 
