@@ -101,15 +101,21 @@ AUTH_MASTER_KEY=4
 
 class Key:
     def __init__(self,key=""):
-        self.value=key
+        if (type(key)!=str):
+            if (type(key)==bytes):
+                self.value=key.decode("utf-8")
+            else:
+                self.value=""
+        else:
+            self.value=key
         
     def valid(self):
         if (len(self.value)==50):
             for c in self.value:
-                tmp=ord(c)
-                if (not ((tmp>=ord('0') and tmp<=ord('9')) or
-                        (tmp>=ord('a') and tmp<=ord('z')) or 
-                        (tmp>=ord('A') and tmp<=ord('A')))):
+                c=ord(c)
+                if (not ((c>=ord('0') and c<=ord('9')) or
+                        (c>=ord('a') and c<=ord('z')) or 
+                        (c>=ord('A') and c<=ord('Z')))):
                     return False
                     
             return True
@@ -327,7 +333,7 @@ class Client:
             return p.call(self.credential.user,self.credential.password)
         elif (self.credential.auth_type==AUTH_KEY):
             p = Proxy(self,None,"validate_user")
-            return p.call(self.credential.user,self.credential.key)
+            return p.call(self.credential.user,self.credential.key.value)
         else:
             raise InvalidCredentialError("Expected password or key credential")
         
