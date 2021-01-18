@@ -3,10 +3,14 @@ from getpass import getpass
 import time
 
 name=input("User:")
-pwd=getpass()
 
+uk = n4d.client.Key.user_key(name)
 
-c = n4d.client.Client("https://127.0.0.1:9779",user=name,password=pwd)
+if (uk.valid()):
+    c = n4d.client.Client("https://127.0.0.1:9779",user=name,key=uk)
+else:
+    pwd=getpass()
+    c = n4d.client.Client("https://127.0.0.1:9779",user=name,password=pwd)
 
 r = c.validate_user()
 print(r)

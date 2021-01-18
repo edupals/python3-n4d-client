@@ -101,15 +101,21 @@ AUTH_MASTER_KEY=4
 
 class Key:
     def __init__(self,key=""):
-        self.value=key
+        if (type(key)!=str):
+            if (type(key)==bytes):
+                self.value=key.decode("utf-8")
+            else:
+                self.value=""
+        else:
+            self.value=key
         
     def valid(self):
         if (len(self.value)==50):
             for c in self.value:
-                tmp=ord(c)
-                if (not ((tmp>=ord('0') and tmp<=ord('9')) or
-                        (tmp>=ord('a') and tmp<=ord('z')) or 
-                        (tmp>=ord('A') and tmp<=ord('A')))):
+                c=ord(c)
+                if (not ((c>=ord('0') and c<=ord('9')) or
+                        (c>=ord('a') and c<=ord('z')) or 
+                        (c>=ord('A') and c<=ord('Z')))):
                     return False
                     
             return True
@@ -176,26 +182,25 @@ class Credential:
             return self.key.value
 
 class Ticket:
-    def __init__(self,ticket=""):
-        self._valid=False
-        
-        tmp = ticket.split(' ')
-        
-        if (len(tmp)>=4):
-            if (tmp[0]=="N4DTKV2"):
-                self._address = tmp[1]
-                self._credential = Credential(user=tmp[2],key=Key(tmp[3]))
+    def __init__(self,ticket="",address=None,credential=None):
+        self.address="https://localhost:9779"
+        self.credential=Credential()
+
+        if (type(address)==str and type(credential)==Credential):
+            self.address=address
+            self.credential=credential
+        else:
+            if (type(ticket)==str):
+                tmp = ticket.split(' ')
                 
-                self._valid=self._credential.key.valid()
-        
+                if (len(tmp)>=4):
+                    if (tmp[0]=="N4DTKV2"):
+                        self.address = tmp[1]
+                        self.credential = Credential(user=tmp[2],key=Key(tmp[3]))
+    
     def valid(self):
-        return self._valid
+        return (self.credential!=None and self.credential.key.valid())
     
-    def get_address(self):
-        return self._address
-    
-    def get_credential(self):
-        return self._credential
         
 class Proxy:
     def __init__(self,client,name,method=""):
@@ -308,7 +313,7 @@ class Client:
             p = Proxy(self,None,"create_ticket")
             status = p.call(self.credential.user)
             
-            return Credential(user=self.credential.user,key=Key.user_key(self.credential.user))
+            return Ticket(address=self.address,credential=Credential(user=self.credential.user,key=Key.user_key(self.credential.user)))
         else:
             raise InvalidCredentialError("Expected password credential")
     
@@ -317,7 +322,7 @@ class Client:
             p = Proxy(self,None,"get_ticket")
             value = p.call(self.credential.user,self.credential.password)
             
-            return Credential(user=self.credential.user,key=Key(value))
+            return Ticket(address=self.address,credential=Credential(user=self.credential.user,key=Key(value)))
         else:
             raise InvalidCredentialError("Expected password credential")
 
@@ -327,7 +332,7 @@ class Client:
             return p.call(self.credential.user,self.credential.password)
         elif (self.credential.auth_type==AUTH_KEY):
             p = Proxy(self,None,"validate_user")
-            return p.call(self.credential.user,self.credential.key)
+            return p.call(self.credential.user,self.credential.key.value)
         else:
             raise InvalidCredentialError("Expected password or key credential")
         
