@@ -1,3 +1,10 @@
+python3-n4d-client (0.11.0.0) focal; urgency=medium
+
+  * Master tag: f752d535e1ad4c95c55a2f804dcaaedb36eb2e55
+  * get and create ticket return a Ticket object
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Mon, 18 Jan 2021 13:03:14 +0100
+
 python3-n4d-client (0.10.2.0) focal; urgency=medium
 
   * Fixed package path
