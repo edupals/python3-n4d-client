@@ -345,8 +345,8 @@ class Client:
     def __init__(self,address="https://127.0.0.1:9779",user=None,password=None,key=None,ticket=None):
         
         if (ticket!=None and ticket.valid()):
-            self.address = ticket.get_address()
-            self.credential = ticket.get_credential()
+            self.address = ticket.address
+            self.credential = ticket.credential
         else:
             self.address=address
             self.credential=Credential(user,password,key)
