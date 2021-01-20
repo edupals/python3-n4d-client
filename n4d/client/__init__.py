@@ -369,7 +369,7 @@ class Client:
             raise InvalidCredentialError("Expected password credential")
     
     def get_ticket(self):
-         """ Requests N4D server a ticket for user stored in Client credential.
+        """ Requests N4D server a ticket for user stored in Client credential.
         
         This ticket is not stored in any place, just on server and client app.
         If credential is not Password or Key type, It will raise a exception.
