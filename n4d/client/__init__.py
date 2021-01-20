@@ -100,7 +100,10 @@ AUTH_KEY=3
 AUTH_MASTER_KEY=4
 
 class Key:
+    """ This class wraps the N4D key format """
+    
     def __init__(self,key=""):
+        """ Create a Key using a valid N4D key string """
         if (type(key)!=str):
             if (type(key)==bytes):
                 self.value=key.decode("utf-8")
@@ -110,6 +113,7 @@ class Key:
             self.value=key
         
     def valid(self):
+        """ Checks whenever the key has the proper format (50 alphanumeric cahracters) """
         if (len(self.value)==50):
             for c in self.value:
                 c=ord(c)
@@ -124,12 +128,22 @@ class Key:
     
     @classmethod
     def user_key(cls,user):
+        """ Gets the user Key
+        
+        Gets the given user Key, if avaialble or possible due to access permission,
+        otherwise, an empty Key is returned instead
+        """
         ticket_path="/run/n4d/tickets/%s"%user
         
         return Key._load_key(ticket_path)
     
     @classmethod
     def master_key(cls):
+        """ Gets the master Key
+        
+        Gets the master Key located at /etc/n4d if avialable or possible due to access permission,
+        otherwise, an empty Key is returned instead
+        """
         ticket_path="/etc/n4d/key"
         
         return Key._load_key(ticket_path)
@@ -150,8 +164,18 @@ class Key:
             return Key()
     
 class Credential:
+    """ A Credential class stores the authentication method and data for a N4D connection """
+    
     def __init__(self,user=None,password=None,key=None):
-
+        """ Creates a credential with given data
+        
+        * user + password creates a Password based credential
+        * user + key creates a Key based credential
+        * key creates a master Key based credential
+        * with no arguments, an anonymous credential is created
+        """
+        #TODO: check against bad input types
+        
         if (user):
             if (password):
                 self.auth_type=AUTH_PASSWORD
@@ -182,7 +206,16 @@ class Credential:
             return self.key.value
 
 class Ticket:
+    """ This class represents a N4D ticket, which is a pair of server address 
+    and key based credential"""
+    
     def __init__(self,ticket="",address=None,credential=None):
+        """ Creates a ticket
+        
+        A Ticket must be created with either a string ticket, usually coming 
+        from a login agent, or with both a server address and a credential 
+        object. No exception is thrown, instead, an invalid Ticket is returned
+        """
         self.address="https://localhost:9779"
         self.credential=Credential()
 
@@ -199,6 +232,8 @@ class Ticket:
                         self.credential = Credential(user=tmp[2],key=Key(tmp[3]))
     
     def valid(self):
+        """ returns True or False whenever Ticket holds a well formated Key"""
+        
         return (self.credential!=None and self.credential.key.valid())
     
         
@@ -299,16 +334,32 @@ class Proxy:
         return self.call
     
 class Client:
+    """ Performs N4D calls 
+    
+    A client is constructed using a combination of user, password, key or 
+    ticket.
+    
+    Client will create a proper Credential using given user/password/key.
+    A Client can also be constructed from a single Ticket object.
+    """
     def __init__(self,address="https://127.0.0.1:9779",user=None,password=None,key=None,ticket=None):
         
         if (ticket!=None and ticket.valid()):
-            self.address = ticket.get_address()
-            self.credential = ticket.get_credential()
+            self.address = ticket.address
+            self.credential = ticket.credential
         else:
             self.address=address
             self.credential=Credential(user,password,key)
     
     def create_ticket(self):
+        """ Requests N4D server a ticket for user stored in Client credential.
+        
+        The ticket will be created and stored in local machine, then this method
+        will attempt to read it.
+        If credential is not Password or Key type, It will raise a exception.
+        If Ticket does not exists or cannot be access, and empty Ticket is 
+        returned instead.
+        """
         if (self.credential.auth_type==AUTH_PASSWORD or self.credential.auth_type==AUTH_KEY):
             p = Proxy(self,None,"create_ticket")
             status = p.call(self.credential.user)
@@ -318,6 +369,13 @@ class Client:
             raise InvalidCredentialError("Expected password credential")
     
     def get_ticket(self):
+         """ Requests N4D server a ticket for user stored in Client credential.
+        
+        This ticket is not stored in any place, just on server and client app.
+        If credential is not Password or Key type, It will raise a exception.
+        If Ticket does not exists or cannot be access, and empty Ticket is 
+        returned instead.
+        """
         if (self.credential.auth_type==AUTH_PASSWORD):
             p = Proxy(self,None,"get_ticket")
             value = p.call(self.credential.user,self.credential.password)
