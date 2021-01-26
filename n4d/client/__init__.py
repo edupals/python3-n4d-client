@@ -74,7 +74,7 @@ class UnhandledError(Exception):
 
 class CallFailedError(Exception):
     def __init__(self,name,method,code,message):
-        super().__init__(self,"%s::%s() returned error code:%d"%(name,method,code))
+        super().__init__(self,"%s::%s() returned error code:%d\n\n%s"%(name,method,code,message))
         self.code=code
         self.message=message
 
@@ -277,50 +277,52 @@ class Proxy:
             context=ssl._create_unverified_context()
             proxy = xmlrpc.client.ServerProxy(self.client.address,context=context)
             
-            if (self.name==None):
-                response = getattr(proxy,self.method)(*args)
-            else:
-                # method(auth,class,args...)
-                response = getattr(proxy,self.method)(self.client.credential.get(),self.name,*args)
-            #print(response)
-            if (self._validate_format(response)):
-                status=response["status"]
-                
-                if (status==UNKNOWN_CLASS):
-                    raise UnknownClassError(self.name)
-                
-                if (status==UNKNOWN_METHOD):
-                    raise UnknownMethodError(self.name,self.method)
-                
-                if (status==USER_NOT_ALLOWED):
-                    raise UserNotAllowedError(self.client.credential.user,self.name,self.method)
-                
-                if (status==AUTHENTICATION_ERROR):
-                    raise AuthenticationError(self.client.credential)
-                
-                if (status==INVALID_RESPONSE):
-                    raise InvalidMethodResponseError(self.name,self.method)
-                
-                if (status==INVALID_ARGUMENTS):
-                    raise InvalidArgumentsError(self.name,self.method)
-                
-                if (status==UNHANDLED_ERROR):
-                    raise UnhandledError(self.name,self.method,response["traceback"])
-                
-                if (status==CALL_FAILED):
-                    raise CallFailedError(self.name,self.method,response["error_code"],response["msg"])
-                
-                if (status==CALL_SUCCESSFUL):
-                    return response["return"]
-                else:
-                    raise UnknownCodeError(self.name,self.method,status)
-                
-            else:
-                print(response)
-                raise InvalidServerResponseError(self.client.server)
-        
         except Exception as err:
             raise ServerError(str(err))
+        
+        if (self.name==None):
+            response = getattr(proxy,self.method)(*args)
+        else:
+            # method(auth,class,args...)
+            response = getattr(proxy,self.method)(self.client.credential.get(),self.name,*args)
+        print(response)
+        if (self._validate_format(response)):
+            status=response["status"]
+            
+            if (status==UNKNOWN_CLASS):
+                raise UnknownClassError(self.name)
+            
+            if (status==UNKNOWN_METHOD):
+                raise UnknownMethodError(self.name,self.method)
+            
+            if (status==USER_NOT_ALLOWED):
+                raise UserNotAllowedError(self.client.credential.user,self.name,self.method)
+            
+            if (status==AUTHENTICATION_ERROR):
+                raise AuthenticationError(self.client.credential)
+            
+            if (status==INVALID_RESPONSE):
+                raise InvalidMethodResponseError(self.name,self.method)
+            
+            if (status==INVALID_ARGUMENTS):
+                raise InvalidArgumentsError(self.name,self.method)
+            
+            if (status==UNHANDLED_ERROR):
+                raise UnhandledError(self.name,self.method,response["traceback"])
+            
+            if (status==CALL_FAILED):
+                raise CallFailedError(self.name,self.method,response["error_code"],response["msg"])
+            
+            if (status==CALL_SUCCESSFUL):
+                return response["return"]
+            else:
+                raise UnknownCodeError(self.name,self.method,status)
+            
+        else:
+            #print(response)
+            raise InvalidServerResponseError(self.client.server)
+        
+        
         
     def __call__(self, *args):
     # calling Proxy as built in method
