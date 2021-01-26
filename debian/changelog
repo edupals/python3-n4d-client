@@ -1,3 +1,9 @@
+python3-n4d-client (0.11.3.0) focal; urgency=medium
+
+  * Master tag: 98274c3852c49fdd255d61e6efd9dd4b25419b85 
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 26 Jan 2021 13:23:35 +0100
+
 python3-n4d-client (0.11.2.0) focal; urgency=medium
 
   * Fixed identation
