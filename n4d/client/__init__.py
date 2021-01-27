@@ -1,19 +1,21 @@
 """
-N4D Client
+    N4D Client
 
-N4D client library
+    N4D client library
 
-This program is free software: you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
-Foundation, either version 3 of the License, or (at your option) any later
-version.
+    Copyright (C) 2021  Enrique Medina Gremaldos <quiqueiii@gmail.com>
 
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+    This program is free software: you can redistribute it and/or modify it under
+    the terms of the GNU General Public License as published by the Free Software
+    Foundation, either version 3 of the License, or (at your option) any later
+    version.
 
-You should have received a copy of the GNU General Public License along with
-this program. If not, see <http://www.gnu.org/licenses/>.
+    This program is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along with
+    this program. If not, see <http://www.gnu.org/licenses/>.
 """
 
 import xmlrpc.client
@@ -271,21 +273,23 @@ class Proxy:
         return True
     
     def call(self,*args):
-        #print("call "+self.client.server+"@"+str(self.client.port)+":"+self.name+":"+self.method+"("+str(args)+")")
+        print("call "+self.client.server+"@"+str(self.client.port)+":"+self.name+":"+self.method+"("+str(args)+")")
         
         try:
             context=ssl._create_unverified_context()
             proxy = xmlrpc.client.ServerProxy(self.client.address,context=context)
             
+            if (self.name==None):
+                response = getattr(proxy,self.method)(*args)
+            else:
+                # method(auth,class,args...)
+                response = getattr(proxy,self.method)(self.client.credential.get(),self.name,*args)
+            
         except Exception as err:
             raise ServerError(str(err))
         
-        if (self.name==None):
-            response = getattr(proxy,self.method)(*args)
-        else:
-            # method(auth,class,args...)
-            response = getattr(proxy,self.method)(self.client.credential.get(),self.name,*args)
-        print(response)
+        #print(response)
+        
         if (self._validate_format(response)):
             status=response["status"]
             

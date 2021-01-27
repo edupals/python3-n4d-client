@@ -11,7 +11,13 @@ if (uk.valid()):
 else:
     pwd=getpass()
     c = n4d.client.Client("https://127.0.0.1:9779",user=name,password=pwd)
-
+"""
+try:
+    c.Test.test()
+except n4d.client.InvalidArgumentsError as e:
+    print(e)
+"""
+print(c.get_methods())
 r = c.validate_user()
 print(r)
 
