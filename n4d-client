@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+
+"""
+    N4D Client
+
+    N4D client cli
+
+    Copyright (C) 2021  Enrique Medina Gremaldos <quiqueiii@gmail.com>
+
+    This program is free software: you can redistribute it and/or modify it under
+    the terms of the GNU General Public License as published by the Free Software
+    Foundation, either version 3 of the License, or (at your option) any later
+    version.
+
+    This program is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along with
+    this program. If not, see <http://www.gnu.org/licenses/>.
+"""
+
+import n4d.client
+
+import os
+import sys
+import getpass
+import time
+import argparse
+import json
+
+def main():
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-a", "--address", help="server address",default="https://127.0.0.1:9779")
+    parser.add_argument("-u", "--user", help="user name")
+    parser.add_argument("-p", "--password", help="user password")
+    parser.add_argument("call",type=str)
+    parser.add_argument("arguments",nargs='?',default="[]")
+    args = parser.parse_args()
+    
+    print(args.call)
+    print(args.arguments)
+    
+    tmp = args.call.split('.')
+    plugin = None
+    method = None
+    
+    if (len(tmp)==1):
+        method=tmp[0]
+    elif (len(tmp)==2):
+        plugin=tmp[0]
+        method=tmp[1]
+    else:
+        sys.exit(1)
+    
+    print(plugin)
+    print(method)
+    print(args.address)
+    print(args.user)
+    print(args.password)
+    
+    tmp = args.arguments.replace('\'','\"')
+    #tmp = args.arguments
+    data=json.loads(tmp)
+    print(data)
+    
+    client = n4d.client.Client(args.address,user=args.user,password=args.password)
+    proxy = n4d.client.Proxy(client,plugin,method)
+    result = proxy.call([])
+    print(result)
+    
+    sys.exit(0)
+
+if __name__=="__main__":
+    main()
+
+
