@@ -1,3 +1,10 @@
+python3-n4d-client (0.12.0.0) focal; urgency=medium
+
+  * Master tag: 8fc3e706761aa85b2e29678c603990f6b2a622d5
+  * early version of n4d-client
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Fri, 29 Jan 2021 11:31:42 +0100
+
 python3-n4d-client (0.11.3.0) focal; urgency=medium
 
   * Master tag: 98274c3852c49fdd255d61e6efd9dd4b25419b85 
