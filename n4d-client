@@ -35,41 +35,102 @@ def main():
     parser.add_argument("-a", "--address", help="server address",default="https://127.0.0.1:9779")
     parser.add_argument("-u", "--user", help="user name")
     parser.add_argument("-p", "--password", help="user password")
-    parser.add_argument("call",type=str)
-    parser.add_argument("arguments",nargs='?',default="[]")
+    parser.add_argument("-i", "--interactive", help="interactive login",action="store_true")
+    parser.add_argument("action",type=str)
+    parser.add_argument("call",nargs='*',default="[]")
     args = parser.parse_args()
     
-    print(args.call)
-    print(args.arguments)
+    cuser=args.user
+    cpassword=args.password
     
-    tmp = args.call.split('.')
-    plugin = None
-    method = None
+    if (args.interactive):
+        if (not cuser):
+            cuser=getpass.getuser()
+        
+        print("user: %s"%(cuser))
+        cpassword=getpass.getpass("password: ")
     
-    if (len(tmp)==1):
-        method=tmp[0]
-    elif (len(tmp)==2):
-        plugin=tmp[0]
-        method=tmp[1]
-    else:
-        sys.exit(1)
+    if (args.action=="call"):
+        
+        if (len(args.call)==0):
+            sys.exit(1)
     
-    print(plugin)
-    print(method)
-    print(args.address)
-    print(args.user)
-    print(args.password)
+        tmp=args.call[0].split('.')
+        print(tmp)
+        plugin = None
+        method = None
     
-    tmp = args.arguments.replace('\'','\"')
-    #tmp = args.arguments
-    data=json.loads(tmp)
-    print(data)
+        if (len(tmp)==1):
+            method=tmp[0]
+        elif (len(tmp)==2):
+            plugin=tmp[0]
+            method=tmp[1]
+        else:
+            sys.exit(1)
     
-    client = n4d.client.Client(args.address,user=args.user,password=args.password)
-    proxy = n4d.client.Proxy(client,plugin,method)
-    result = proxy.call([])
-    print(result)
+        print(args.address)
+        print(plugin)
+        print(method)
+        print(cuser)
     
+        arguments=None
+        if (len(args.call)>1):
+            arguments=args.call[1]
+        
+        print(arguments)
+        
+        if (arguments):
+            tmp = arguments.replace('\'','\"')
+            data=json.loads(arguments)
+            print(data)
+        
+        client = n4d.client.Client(args.address,user=cuser,password=cpassword)
+        proxy = n4d.client.Proxy(client,plugin,method)
+        result = proxy.call()
+        print(result)
+    
+    if (args.action=="get-methods"):
+        client = n4d.client.Client(args.address,user=cuser,password=cpassword)
+        data=client.get_methods()
+        
+        rows=[]
+        max_columns=0
+        for p in data:
+            
+            for m in data[p]:
+                columns=[]
+                columns.append(p)
+                columns.append(m)
+                
+                for pr in data[p][m]:
+                    columns.append(pr)
+                    columns.append(str(data[p][m][pr]))
+                
+                rows.append(columns)
+                if (len(columns)>max_columns):
+                    max_columns=len(columns)
+        
+        csizes=[0]*max_columns
+        
+        for r in rows:
+            for n in range(len(r)):
+                x=len(r[n])
+                if (x>csizes[n]):
+                    csizes[n]=x
+                
+        
+        for row in rows:
+            line=""
+            for n in range(len(row)):
+                col=row[n]
+                line+=col
+                spaces = csizes[n]-len(col)
+                for s in range(spaces):
+                    line+=" "
+                line+="    "
+                
+            print(line)
+            
     sys.exit(0)
 
 if __name__=="__main__":

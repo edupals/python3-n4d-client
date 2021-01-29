@@ -176,7 +176,8 @@ class Credential:
         * key creates a master Key based credential
         * with no arguments, an anonymous credential is created
         """
-        #TODO: check against bad input types
+        
+        self.auth_type=AUTH_ANONYMOUS
         
         if (user):
             if (password):
