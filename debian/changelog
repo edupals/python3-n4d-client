@@ -1,3 +1,11 @@
+python3-n4d-client (0.13.0.0) focal; urgency=medium
+
+  * Master tag: c57dc82dcd46ec007c06a9e0ce87e13f87c5089f
+  * fixed carriage return on master key
+  * added validate-user on cli
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Mon, 01 Feb 2021 12:40:19 +0100
+
 python3-n4d-client (0.12.0.0) focal; urgency=medium
 
   * Master tag: 8fc3e706761aa85b2e29678c603990f6b2a622d5
