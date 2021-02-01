@@ -47,7 +47,7 @@ def main():
         if (not cuser):
             cuser=getpass.getuser()
         
-        print("user: %s"%(cuser))
+        print("user: %s"%(cuser),file=sys.stderr)
         cpassword=getpass.getpass("password: ")
     
     if (args.action=="call"):
@@ -130,7 +130,24 @@ def main():
                 line+="    "
                 
             print(line)
+        
+        
+    if (args.action=="validate-user"):
+        client = n4d.client.Client(args.address,user=cuser,password=cpassword)
+        try:
+            data=client.validate_user()
+            groups=""
+            for g in data[1]:
+                groups+=g+" "
+            print(groups)
             
+        except n4d.client.AuthenticationError as e:
+            print("Failed")
+            sys.exit(1)
+            
+        except Exception as e:
+            sys.exit(1)
+        
     sys.exit(0)
 
 if __name__=="__main__":
