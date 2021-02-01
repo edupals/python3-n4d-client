@@ -158,6 +158,8 @@ class Key:
                 f=open(ticket_path,"rb")
                 data=f.readline()
                 f.close()
+                #strip possible spaces or new lines
+                data=data.strip()
                 
                 return Key(data)
             except:
