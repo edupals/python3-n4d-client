@@ -1,3 +1,9 @@
+python3-n4d-client (0.13.1.0) focal; urgency=medium
+
+  * Fixed bad seyup.py
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 02 Feb 2021 11:33:17 +0100
+
 python3-n4d-client (0.13.0.0) focal; urgency=medium
 
   * Master tag: c57dc82dcd46ec007c06a9e0ce87e13f87c5089f
