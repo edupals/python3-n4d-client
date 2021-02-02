@@ -276,7 +276,7 @@ class Proxy:
         return True
     
     def call(self,*args):
-        print("call "+self.client.server+"@"+str(self.client.port)+":"+self.name+":"+self.method+"("+str(args)+")")
+        #print('call {}@{}:{}:{}()'.format(self.client.server,self.client.port,self.name,self.method,args))
         
         try:
             context=ssl._create_unverified_context()
