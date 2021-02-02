@@ -1,3 +1,9 @@
+python3-n4d-client (0.13.2.0) focal; urgency=medium
+
+  * Removed verbose line
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 02 Feb 2021 14:26:41 +0100
+
 python3-n4d-client (0.13.1.0) focal; urgency=medium
 
   * Fixed bad seyup.py
