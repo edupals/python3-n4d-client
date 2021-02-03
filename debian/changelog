@@ -1,3 +1,11 @@
+python3-n4d-client (0.14.0.0) focal; urgency=medium
+
+  * Master tag: e7e33af3c040e34f4bd15e389cf30dbed33326df
+  * n4d-client is able to add arguments
+  * added some extra properties to exceptions
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Wed, 03 Feb 2021 14:19:52 +0100
+
 python3-n4d-client (0.13.2.0) focal; urgency=medium
 
   * Removed verbose line
