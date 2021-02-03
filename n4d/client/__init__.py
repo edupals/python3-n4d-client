@@ -40,14 +40,20 @@ class ServerError(Exception):
 class UnknownClassError(Exception):
     def __init__(self,name):
         super().__init__(self,"Class %s not found"%name)
+        self.name=name
 
 class UnknownMethodError(Exception):
     def __init__(self,name,method):
         super().__init__(self,"Method %s::%s() not found"%(name,method))
+        self.name=name
+        self.method=method
 
 class UserNotAllowedError(Exception):
     def __init__(self,user,name,method):
         super().__init__(self,"%s not allowed to %s::%s()"%(user,name,method))
+        self.name=name
+        self.method=method
+        self.user=user
 
 class AuthenticationError(Exception):
     def __init__(self,credential):
@@ -57,7 +63,7 @@ class AuthenticationError(Exception):
             super().__init__(self,"Authetication failed for anonymous")
         else:
             super().__init__(self,"Authetication failed for master key")
-            
+
 class InvalidMethodResponseError(Exception):
     def __init__(self,name,method):
         super().__init__(self,"Invalid response from %s::%s()"%(name,method))
@@ -73,10 +79,15 @@ class InvalidArgumentsError(Exception):
 class UnhandledError(Exception):
     def __init__(self,name,method,traceback):
         super().__init__(self,"Unhandled error from %s::%s():\n\n%s"%(name,method,traceback))
+        self.name=name
+        self.method=method
+        self.traceback=traceback
 
 class CallFailedError(Exception):
     def __init__(self,name,method,code,message):
         super().__init__(self,"%s::%s() returned error code:%d\n\n%s"%(name,method,code,message))
+        self.name=name
+        self.method=method
         self.code=code
         self.message=message
 
