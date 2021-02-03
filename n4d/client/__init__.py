@@ -291,7 +291,7 @@ class Proxy:
         
         try:
             context=ssl._create_unverified_context()
-            proxy = xmlrpc.client.ServerProxy(self.client.address,context=context)
+            proxy = xmlrpc.client.ServerProxy(self.client.address,context=context, allow_none=True)
             
             if (self.name==None):
                 response = getattr(proxy,self.method)(*args)
