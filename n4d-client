@@ -36,6 +36,8 @@ def main():
     parser.add_argument("-u", "--user", help="user name")
     parser.add_argument("-p", "--password", help="user password")
     parser.add_argument("-i", "--interactive", help="interactive login",action="store_true")
+    parser.add_argument("-r", "--root", help="login as root using master key",action="store_true")
+    parser.add_argument("-k", "--key", help="login as root using given master key")
     parser.add_argument("action",type=str)
     parser.add_argument("call",nargs='*',default="[]")
     args = parser.parse_args()
@@ -43,13 +45,34 @@ def main():
     cuser=args.user
     cpassword=args.password
     
-    if (args.interactive):
+    is_root = False
+    
+    if (args.key!=None):
+        is_root=True
+        ckey=n4d.client.Key(args.key)
+        if (not ckey.valid()):
+            print("Invalid key",file=sys.stderr)
+            sys.exit(1)
+            
+    elif (args.root):
+        is_root=True
+        ckey = n4d.client.Key.master_key()
+        if (not ckey.valid()):
+            print("Failed to read master key",file=sys.stderr)
+            sys.exit(1)
+    
+    if (not is_root and args.interactive):
         if (not cuser):
             cuser=getpass.getuser()
         
         print("user: %s"%(cuser),file=sys.stderr)
         cpassword=getpass.getpass("password: ")
     
+    if (is_root):
+        ccredential = n4d.client.Credential(key=ckey)
+    else:
+        ccredential = n4d.client.Credential(user=cuser,password=cpassword)
+        
     if (args.action=="call"):
         
         if (len(args.call)==0):
@@ -87,13 +110,13 @@ def main():
         else:
             arguments=[]
             
-        client = n4d.client.Client(args.address,user=cuser,password=cpassword)
+        client = n4d.client.Client(args.address,credential=ccredential)
         proxy = n4d.client.Proxy(client,plugin,method)
         result = proxy.call(*arguments)
         print(result)
     
     if (args.action=="get-methods"):
-        client = n4d.client.Client(args.address,user=cuser,password=cpassword)
+        client = n4d.client.Client(args.address,credential=ccredential)
         data=client.get_methods()
         
         rows=[]
@@ -136,7 +159,7 @@ def main():
         
         
     if (args.action=="validate-user"):
-        client = n4d.client.Client(args.address,user=cuser,password=cpassword)
+        client = n4d.client.Client(args.address,credential=ccredential)
         try:
             data=client.validate_user()
             groups=""
