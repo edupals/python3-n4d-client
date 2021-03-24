@@ -79,6 +79,7 @@ class InvalidArgumentsError(Exception):
 class UnhandledError(Exception):
     def __init__(self,name,method,traceback):
         super().__init__(self,"Unhandled error from %s::%s():\n\n%s"%(name,method,traceback))
+        super().with_traceback(traceback)
         self.name=name
         self.method=method
         self.traceback=traceback
@@ -356,17 +357,20 @@ class Proxy:
 class Client:
     """ Performs N4D calls 
     
-    A client is constructed using a combination of user, password, key or 
-    ticket.
+    A client is constructed using a combination of user, password, key, 
+    ticket.or credential
     
     Client will create a proper Credential using given user/password/key.
     A Client can also be constructed from a single Ticket object.
     """
-    def __init__(self,address="https://127.0.0.1:9779",user=None,password=None,key=None,ticket=None):
+    def __init__(self,address="https://127.0.0.1:9779",user=None,password=None,key=None,ticket=None,credential=None):
         
         if (ticket!=None and ticket.valid()):
             self.address = ticket.address
             self.credential = ticket.credential
+        elif (credential!=None):
+            self.address=address
+            self.credential=credential
         else:
             self.address=address
             self.credential=Credential(user,password,key)
