@@ -252,7 +252,6 @@ class Ticket:
         """ returns True or False whenever Ticket holds a well formated Key"""
         
         return (self.credential!=None and self.credential.key.valid())
-    
         
 class Proxy:
     def __init__(self,client,name,method=""):
