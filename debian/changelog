@@ -1,3 +1,12 @@
+python3-n4d-client (1.0.0.0) focal; urgency=medium
+
+  * Master tag: 9703fc226ad6434829379c5fbbe2308e4a527b41
+  * Fixed a bug in Credential object creation
+  * Client can be constructed using a credential object
+  * Command line tool now supports both user and root tickets
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Fri, 26 Mar 2021 22:32:10 +0100
+
 python3-n4d-client (0.15.0.0) focal; urgency=medium
 
   * Master tag: 27d0ad3e04a734a34b846704389f39349e407689
