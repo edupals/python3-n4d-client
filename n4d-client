@@ -35,42 +35,61 @@ def main():
     parser.add_argument("-a", "--address", help="server address",default="https://127.0.0.1:9779")
     parser.add_argument("-u", "--user", help="user name")
     parser.add_argument("-p", "--password", help="user password")
+    parser.add_argument("-k", "--key", help="Use given key instead of password. If no user is specified, master key is assumed")
     parser.add_argument("-i", "--interactive", help="interactive login",action="store_true")
-    parser.add_argument("-r", "--root", help="login as root using master key",action="store_true")
-    parser.add_argument("-k", "--key", help="login as root using given master key")
-    parser.add_argument("action",type=str)
+    parser.add_argument("-r", "--root", help="Use local master ticket to run client, no address or login arguments are required",action="store_true")
+    
+    parser.add_argument("-t", "--ticket", help="Use local ticket to run client, no address or login arguments are required",action="store_true")
+    parser.add_argument("action",type=str, help="call, get-methods, validate-user, create-ticket")
     parser.add_argument("call",nargs='*',default="[]")
     args = parser.parse_args()
     
-    cuser=args.user
+    cuser= args.user
     cpassword=args.password
+    caddress=args.address
+    ccredential=None
     
-    is_root = False
+    if (args.root and args.ticket):
+        print("root and ticket options are incompatible between them",file=sys.stderr)
+        sys.exit(1)
     
-    if (args.key!=None):
-        is_root=True
-        ckey=n4d.client.Key(args.key)
-        if (not ckey.valid()):
-            print("Invalid key",file=sys.stderr)
-            sys.exit(1)
-            
-    elif (args.root):
-        is_root=True
-        ckey = n4d.client.Key.master_key()
-        if (not ckey.valid()):
-            print("Failed to read master key",file=sys.stderr)
-            sys.exit(1)
-    
-    if (not is_root and args.interactive):
+    if (args.ticket):
         if (not cuser):
             cuser=getpass.getuser()
         
+        ckey = n4d.client.Key.user_key(cuser)
+        
+        if (not ckey.valid()):
+            print("Failed to load user key",file=sys.stderr)
+            sys.exit(1)
+        
+        ccredential = n4d.client.Credential(user=cuser,key=ckey)
+        caddress="https://localhost:9779"
+    
+    if (args.key):
+        if (cuser):
+            ccredential = n4d.client.Credential(user=cuser,key=ckey)
+        else:
+            ccredential = n4d.client.Credential(key=ckey)
+    
+    if (args.root):
+        
+        ckey = n4d.client.Key.master_key()
+        
+        if (not ckey.valid()):
+            print("Failed to read master key",file=sys.stderr)
+            sys.exit(1)
+        
+        ccredential = n4d.client.Credential(key=ckey)
+        caddress="https://localhost:9779"
+        
+    if (not ccredential and args.interactive):
+        if (not cuser):
+            cuser=getpass.getuser()
+            
         print("user: %s"%(cuser),file=sys.stderr)
         cpassword=getpass.getpass("password: ")
-    
-    if (is_root):
-        ccredential = n4d.client.Credential(key=ckey)
-    else:
+        
         ccredential = n4d.client.Credential(user=cuser,password=cpassword)
         
     if (args.action=="call"):
@@ -110,13 +129,13 @@ def main():
         else:
             arguments=[]
             
-        client = n4d.client.Client(args.address,credential=ccredential)
+        client = n4d.client.Client(caddress,credential=ccredential)
         proxy = n4d.client.Proxy(client,plugin,method)
         result = proxy.call(*arguments)
         print(result)
     
     if (args.action=="get-methods"):
-        client = n4d.client.Client(args.address,credential=ccredential)
+        client = n4d.client.Client(caddress,credential=ccredential)
         data=client.get_methods()
         
         rows=[]
@@ -144,7 +163,6 @@ def main():
                 if (x>csizes[n]):
                     csizes[n]=x
                 
-        
         for row in rows:
             line=""
             for n in range(len(row)):
@@ -157,9 +175,8 @@ def main():
                 
             print(line)
         
-        
     if (args.action=="validate-user"):
-        client = n4d.client.Client(args.address,credential=ccredential)
+        client = n4d.client.Client(caddress,credential=ccredential)
         try:
             data=client.validate_user()
             groups=""
@@ -172,6 +189,18 @@ def main():
             sys.exit(1)
             
         except Exception as e:
+            sys.exit(1)
+    
+    if (args.action=="create-ticket"):
+        if (not cuser):
+            cuser=getpass.getuser()
+            
+        client = n4d.client.Client(caddress,user=cuser,password="")
+
+        try:
+            client.create_ticket()
+        except Exception as e:
+            print(str(e),file=sys.stderr)
             sys.exit(1)
         
     sys.exit(0)

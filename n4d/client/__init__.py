@@ -193,14 +193,14 @@ class Credential:
         
         self.auth_type=AUTH_ANONYMOUS
         
-        if (user):
-            if (password):
+        if (type(user)==str):
+            if (type(password)==str):
                 self.auth_type=AUTH_PASSWORD
                 
             if (key):
                 self.auth_type=AUTH_KEY
         else:
-            if (key):
+            if (type(key)==str):
                 self.auth_type=AUTH_MASTER_KEY
             else:
                 self.auth_type=AUTH_ANONYMOUS
@@ -252,7 +252,6 @@ class Ticket:
         """ returns True or False whenever Ticket holds a well formated Key"""
         
         return (self.credential!=None and self.credential.key.valid())
-    
         
 class Proxy:
     def __init__(self,client,name,method=""):
