@@ -35,25 +35,22 @@ def main():
     parser.add_argument("-a", "--address", help="server address",default="https://127.0.0.1:9779")
     parser.add_argument("-u", "--user", help="user name")
     parser.add_argument("-p", "--password", help="user password")
+    parser.add_argument("-k", "--key", help="Use given key instead of password. If no user is specified, master key is assumed")
     parser.add_argument("-i", "--interactive", help="interactive login",action="store_true")
     parser.add_argument("-r", "--root", help="Use local master ticket to run client, no address or login arguments are required",action="store_true")
-    parser.add_argument("-k", "--key", help="Use given key instead of password. If no user is specified, master key is assumed")
+    
     parser.add_argument("-t", "--ticket", help="Use local ticket to run client, no address or login arguments are required",action="store_true")
     parser.add_argument("action",type=str)
     parser.add_argument("call",nargs='*',default="[]")
     args = parser.parse_args()
     
-    cuser=args.user
+    cuser= args.user
     cpassword=args.password
     caddress=args.address
     ccredential=None
     
-    check=(args.root) ? 1 : 0
-    check+=(args.key) ? 1 : 0
-    check+=(args.ticket) ? 1 : 0
-    
-    if (check>1):
-        printf("root, key and ticket options are incompatible between them",file=sys.stderr)
+    if (args.root and args.ticket):
+        print("root and ticket options are incompatible between them",file=sys.stderr)
         sys.exit(1)
     
     if (args.ticket):
@@ -63,39 +60,36 @@ def main():
         ckey = n4d.client.Key.user_key(cuser)
         
         if (not ckey.valid()):
-            printf("Failed to load user key",file=sys.stderr)
+            print("Failed to load user key",file=sys.stderr)
             sys.exit(1)
         
         ccredential = n4d.client.Credential(user=cuser,key=ckey)
         caddress="https://localhost:9779"
     
-    is_root = False
+    if (args.key):
+        if (cuser):
+            ccredential = n4d.client.Credential(user=cuser,key=ckey)
+        else:
+            ccredential = n4d.client.Credential(key=ckey)
     
-    if (args.key!=None):
-        is_root=True
-        ckey=n4d.client.Key(args.key)
-        if (not ckey.valid()):
-            print("Invalid key",file=sys.stderr)
-            sys.exit(1)
-            
-    elif (args.root):
-        is_root=True
+    if (args.root):
+        
         ckey = n4d.client.Key.master_key()
+        
         if (not ckey.valid()):
             print("Failed to read master key",file=sys.stderr)
             sys.exit(1)
-    
-    if (not is_root and args.interactive):
-        if (not cuser):
-            cuser=getpass.getuser()
         
-        print("user: %s"%(cuser),file=sys.stderr)
-        cpassword=getpass.getpass("password: ")
-    
-    if (is_root):
         ccredential = n4d.client.Credential(key=ckey)
         caddress="https://localhost:9779"
-    else:
+        
+    if (not ccredential and args.interactive):
+        if (not cuser):
+            cuser=getpass.getuser()
+            
+        print("user: %s"%(cuser),file=sys.stderr)
+        cpassword=getpass.getpass("password: ")
+        
         ccredential = n4d.client.Credential(user=cuser,password=cpassword)
         
     if (args.action=="call"):
