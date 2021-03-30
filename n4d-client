@@ -82,7 +82,7 @@ def main():
     if (args.root):
         
         ckey = n4d.client.Key.master_key()
-        
+
         if (not ckey.valid()):
             print("Failed to read master key",file=sys.stderr)
             sys.exit(1)
