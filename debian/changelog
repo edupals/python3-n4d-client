@@ -1,3 +1,9 @@
+python3-n4d-client (1.0.3.0) focal; urgency=medium
+
+  * Fixed bug with master key auth
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 30 Mar 2021 11:11:29 +0200
+
 python3-n4d-client (1.0.2.0) focal; urgency=medium
 
   * Minor bug
