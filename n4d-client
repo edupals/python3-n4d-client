@@ -67,10 +67,13 @@ def main():
         caddress="https://localhost:9779"
     
     if (args.key):
+        
+        ckey = n4d.client.Key(args.key)
+        
         if (cuser):
-            ccredential = n4d.client.Credential(user=cuser,key=args.key)
+            ccredential = n4d.client.Credential(user=cuser,key=ckey)
         else:
-            ccredential = n4d.client.Credential(key=args.key)
+            ccredential = n4d.client.Credential(key=ckey)
         
         if (not ccredential.key.valid()):
             print("Warning, provided key seems invalid",file=sys.stderr)
