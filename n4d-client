@@ -68,9 +68,13 @@ def main():
     
     if (args.key):
         if (cuser):
-            ccredential = n4d.client.Credential(user=cuser,key=ckey)
+            ccredential = n4d.client.Credential(user=cuser,key=args.key)
         else:
-            ccredential = n4d.client.Credential(key=ckey)
+            ccredential = n4d.client.Credential(key=args.key)
+        
+        if (not ccredential.key.valid()):
+            print("Warning, provided key seems invalid",file=sys.stderr)
+            
     
     if (args.root):
         
