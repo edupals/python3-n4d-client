@@ -79,7 +79,7 @@ class InvalidArgumentsError(Exception):
 class UnhandledError(Exception):
     def __init__(self,name,method,traceback):
         super().__init__(self,"Unhandled error from %s::%s():\n\n%s"%(name,method,traceback))
-        super().with_traceback(traceback)
+        #super().with_traceback(traceback)
         self.name=name
         self.method=method
         self.traceback=traceback
@@ -197,10 +197,10 @@ class Credential:
             if (type(password)==str):
                 self.auth_type=AUTH_PASSWORD
                 
-            if (key):
+            if (type(key)==Key):
                 self.auth_type=AUTH_KEY
         else:
-            if (type(key)==str):
+            if (type(key)==Key):
                 self.auth_type=AUTH_MASTER_KEY
             else:
                 self.auth_type=AUTH_ANONYMOUS
