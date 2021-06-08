@@ -1,3 +1,10 @@
+python3-n4d-client (1.0.4.0) focal; urgency=medium
+
+  * Master tag: 4c7ecc56b75a407bb2668b4a57eb108272aa4580
+  * Allowing both client and credential to be build using keys in string format
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Tue, 08 Jun 2021 14:56:10 +0200
+
 python3-n4d-client (1.0.3.0) focal; urgency=medium
 
   * Fixed bug with master key auth
