@@ -193,6 +193,9 @@ class Credential:
         
         self.auth_type=AUTH_ANONYMOUS
         
+        if (type(key)==str):
+            key = Key(key)
+        
         if (type(user)==str):
             if (type(password)==str):
                 self.auth_type=AUTH_PASSWORD
