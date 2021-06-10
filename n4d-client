@@ -90,12 +90,13 @@ def main():
         ccredential = n4d.client.Credential(key=ckey)
         caddress="https://localhost:9779"
         
-    if (not ccredential and args.interactive):
+    if (not ccredential):
         if (not cuser):
             cuser=getpass.getuser()
-            
-        print("user: %s"%(cuser),file=sys.stderr)
-        cpassword=getpass.getpass("password: ")
+        
+        if (args.interactive):
+            print("user: %s"%(cuser),file=sys.stderr)
+            cpassword=getpass.getpass("password: ")
         
         ccredential = n4d.client.Credential(user=cuser,password=cpassword)
         
