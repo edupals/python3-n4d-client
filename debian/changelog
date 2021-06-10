@@ -1,3 +1,10 @@
+python3-n4d-client (1.0.5.0) focal; urgency=medium
+
+  * Master tag: b1206f202e902c4655600de49d0ff45dfb7c5856
+  * Fixed bug on cli not using user/password credential
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Thu, 10 Jun 2021 10:02:32 +0200
+
 python3-n4d-client (1.0.4.0) focal; urgency=medium
 
   * Master tag: 4c7ecc56b75a407bb2668b4a57eb108272aa4580
