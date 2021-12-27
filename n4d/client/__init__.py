@@ -23,6 +23,7 @@ import ssl
 
 import os
 
+# N4D error constants
 UNKNOWN_CLASS=-40
 UNKNOWN_METHOD=-30
 USER_NOT_ALLOWED=-20
@@ -32,6 +33,14 @@ INVALID_ARGUMENTS=-3
 UNHANDLED_ERROR=-2
 CALL_FAILED=-1
 CALL_SUCCESSFUL=0
+
+#Variable error constants
+VAR_NOT_FOUNT = -5,
+VAR_PROTECTED = -10,
+VAR_REMOTE_SERVER_ERROR = -15,
+VAR_BACKUP_ERROR =  -30,
+VAR_RESTORE_ERROR = -35,
+VAR_REMOTE_SERVER_NOT_CONFIGURED = -40
 
 class ServerError(Exception):
     def __init__(self,message):
@@ -107,6 +116,30 @@ class TicketFailedError(Exception):
 class UnknownMethodResponseError(Exception):
     def __init__(self,name,method):
         super().__init__(self,"Unknown response from %s::%s()"%(name,method))
+
+class VariableNotFoundError(CallFailedError):
+    def __init__(self,name, method, code, message):
+        super().__init__(self,name, method, code, message)
+
+class VariableProtectedError(CallFailedError):
+    def __init__(self,name, method, code, message):
+        super().__init__(self,name, method, code, message)
+        
+class VariableRemoteServerError(CallFailedError):
+    def __init__(self,name, method, code, message):
+        super().__init__(self,name, method, code, message)
+
+class VariableBackupError(CallFailedError):
+    def __init__(self,name, method, code, message):
+        super().__init__(self,name, method, code, message)
+
+class VariableRestoreError(CallFailedError):
+    def __init__(self,name, method, code, message):
+        super().__init__(self,name, method, code, message)
+
+class VariableRemoteServerNotConfiguredError(CallFailedError):
+    def __init__(self,name, method, code, message):
+        super().__init__(self,name, method, code, message)
 
 AUTH_ANONYMOUS=1
 AUTH_PASSWORD=2
@@ -343,8 +376,6 @@ class Proxy:
             #print(response)
             raise InvalidServerResponseError(self.client.server)
         
-        
-        
     def __call__(self, *args):
     # calling Proxy as built in method
         self.method=self.name
@@ -424,9 +455,29 @@ class Client:
         p = Proxy(self,None,"get_methods")
         return p.call()
     
+    def _handle_variable_error(self,error,varname):
+        if (error.code == VAR_NOT_FOUND):
+            raise VariableNotFoundError(error.name,error.method,error.code,"Variable %s not found"%(varname))
+        elif (error.code == VAR_PROTECTED):
+            raise VariableProtectedError(error.name,error.method,error.code,"Variable %s is protected"%(varname))
+        elif (error.code == VAR_REMOTE_SERVER_ERROR):
+            raise VariableRemoteServerError(error.name,error.method,error.code,error.message)
+        elif (error.code == VAR_BACKUP_ERROR):
+            raise VariableBackupError(error.name,error.method,error.code,error.message)
+        elif (error.code == VAR_RESTORE_ERROR):
+            raise VariableRestoreError(error.name,error.method,error.code,error.message)
+        elif (error.code == VAR_REMOTE_SERVER_NOT_CONFIGURED):
+            raise VariableRemoteServerNotConfiguredError(error.name,error.method,error.code,error.message)
+        else:
+            raise CallFailedError(error.name,error.method,error.code,error.message)
+        
     def get_variable(self,name,info = False):
-        p = Proxy(self,None,"get_variable")
-        return p.call(name,info)
+        try:
+            p = Proxy(self,None,"get_variable")
+            return p.call(name,info)
+        except e as CallFailedError:
+            _handle_variable_error(e,name)
+        
     
     def set_variable(self,name,value,extra_info = None):
         p = Proxy(self,None,"set_variable")
