@@ -1,3 +1,9 @@
+python3-n4d-client (1.0.5.1) jammy; urgency=medium
+
+  * Jammy release.
+
+ -- Enrique Medina Gremaldos <quiqueiii@gmail.com>  Thu, 31 Aug 2023 10:45:49 +0200
+
 python3-n4d-client (1.0.5.0) focal; urgency=medium
 
   * Master tag: b1206f202e902c4655600de49d0ff45dfb7c5856
