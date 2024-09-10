@@ -1,4 +1,4 @@
-Source: python3-n4d-client
+Source: python-n4d-client
 Section: libs
 Priority: optional
 Maintainer: Enrique Medina Gremaldos <quique@necos.es>

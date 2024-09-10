@@ -1,4 +1,4 @@
-python3-n4d-client (1.0.6.0) noble; urgency=medium
+python-n4d-client (1.0.6.0) noble; urgency=medium
 
   * Updated build to toml
 
