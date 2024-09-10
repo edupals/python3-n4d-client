@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools","setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "N4D-client" 
+version = "1.0"
+description = "N4D client"
+authors = [
+	{ name = "Enrique Medina Gremaldos", email="quique@necos.es" },
+	{ name = "LliureX Team"}
+]
+license = {text="GPL-3"}
+urls = {repository="https://github.com/edupals/python3-n4d-client"}
+
+[tool.setuptools]
+script-files = [ "n4d-client" ]
+package-dir = {"" = "src"}
+#data-files = [ ( "/usr/share/perl5/Debian/Debhelper/Sequence/", [ "i18n.pm" ] ) ]
