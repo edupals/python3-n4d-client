@@ -441,7 +441,10 @@ class Client:
     def version(self):
         p = Proxy(self,None,"version")
         return p.call()
-        
+       
+    def startup_on_demand(self, var_name, value):
+        p = Proxy(self, None, "startup_on_demand")
+        return p.call(self.credential.get(), var_name, value )
     def __getattr__(self,name):
         return Proxy(self,name)
     
