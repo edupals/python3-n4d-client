@@ -3,7 +3,7 @@
 
     N4D client library
 
-    Copyright (C) 2021  Enrique Medina Gremaldos <quiqueiii@gmail.com>
+    Copyright (C) 2024  Enrique Medina Gremaldos <quique@necos.es>
 
     This program is free software: you can redistribute it and/or modify it under
     the terms of the GNU General Public License as published by the Free Software
@@ -343,8 +343,6 @@ class Proxy:
             #print(response)
             raise InvalidServerResponseError(self.client.server)
         
-        
-        
     def __call__(self, *args):
     # calling Proxy as built in method
         self.method=self.name
@@ -443,7 +441,10 @@ class Client:
     def version(self):
         p = Proxy(self,None,"version")
         return p.call()
-        
+       
+    def startup_on_demand(self, var_name, value):
+        p = Proxy(self, None, "startup_on_demand")
+        return p.call(self.credential.get(), var_name, value )
     def __getattr__(self,name):
         return Proxy(self,name)
     
