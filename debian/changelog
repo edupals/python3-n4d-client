@@ -1,3 +1,9 @@
+python-n4d-client (1.1.0.0) noble; urgency=medium
+
+  * Added json input and output support
+
+ -- Enrique Medina Gremaldos <quique@necos.es>  Wed, 27 Aug 2025 10:14:06 +0200
+
 python-n4d-client (1.0.6.0) noble; urgency=medium
 
   * Updated build to toml
