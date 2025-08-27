@@ -38,7 +38,10 @@ def main():
     parser.add_argument("-k", "--key", help="Use given key instead of password. If no user is specified, master key is assumed")
     parser.add_argument("-i", "--interactive", help="interactive login",action="store_true")
     parser.add_argument("-r", "--root", help="Use local master ticket to run client, no address or login arguments are required",action="store_true")
-    
+
+    parser.add_argument("-j", "--json-output", help="prints call result in json format", action="store_true")
+    parser.add_argument("-J", "--json-input", help="reads json call arguments structure from stdin", action="store_true")
+
     parser.add_argument("-t", "--ticket", help="Use local ticket to run client, no address or login arguments are required",action="store_true")
     parser.add_argument("action",type=str, help="call, get-methods, validate-user, create-ticket")
     parser.add_argument("call",nargs='*',default="[]")
@@ -117,30 +120,32 @@ def main():
             method=tmp[1]
         else:
             sys.exit(1)
-        """
-        print(args.address)
-        print(plugin)
-        print(method)
-        print(cuser)
-        """
+
         arguments=None
-        if (len(args.call)>1):
-            arguments=args.call[1]
-        
-        #print(arguments)
-        
-        if (arguments):
-            tmp = arguments.replace('\'','\"')
-            data=json.loads(tmp)
-            arguments=data
-            #print(data)
+
+        if (args.json_input):
+            raw = sys.stdin.read()
+            arguments = json.loads(raw)
         else:
-            arguments=[]
+            if (len(args.call)>1):
+                arguments=args.call[1]
+
+            if (arguments):
+                tmp = arguments.replace('\'','\"')
+                data=json.loads(tmp)
+                arguments=data
+                #print(data)
+            else:
+                arguments=[]
             
         client = n4d.client.Client(caddress,credential=ccredential)
         proxy = n4d.client.Proxy(client,plugin,method)
         result = proxy.call(*arguments)
-        print(result)
+
+        if (args.json_output):
+            print(json.dumps(result))
+        else:
+            print(result)
     
     if (args.action=="get-methods"):
         client = n4d.client.Client(caddress,credential=ccredential)
