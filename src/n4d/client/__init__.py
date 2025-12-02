@@ -372,7 +372,7 @@ class Client:
     Client will create a proper Credential using given user/password/key.
     A Client can also be constructed from a single Ticket object.
     """
-    def __init__(self,address="https://127.0.0.1:9779",user=None,password=None,key=None,ticket=None,credential=None,timeout=4):
+    def __init__(self,address="https://127.0.0.1:9779",user=None,password=None,key=None,ticket=None,credential=None,timeout=5):
         
         self.timeout = timeout
 
