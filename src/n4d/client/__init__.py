@@ -19,6 +19,7 @@
 """
 
 import xmlrpc.client
+import http.client
 import ssl
 
 import os
