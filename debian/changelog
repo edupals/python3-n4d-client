@@ -1,3 +1,10 @@
+python3-n4d-client (1.2.0.0) jammy; urgency=medium
+
+  * Added a connection timout parameter (default to 5s)
+  * Added an option for a json formatted output at client tool
+
+ -- Enrique Medina Gremaldos <quique@necos.es>  Wed, 03 Dec 2025 13:37:16 +0100
+
 python3-n4d-client (1.0.6) jammy; urgency=medium
 
   * Add built-in startup_on_demand 
