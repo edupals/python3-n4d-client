@@ -19,6 +19,7 @@
 """
 
 import xmlrpc.client
+import http.client
 import ssl
 
 import os
@@ -255,7 +256,16 @@ class Ticket:
         """ returns True or False whenever Ticket holds a well formated Key"""
         
         return (self.credential!=None and self.credential.key.valid())
-        
+
+class TimeoutTransport(xmlrpc.client.Transport):
+
+    def __init__(self, timeout=None):
+        super().__init__()
+        self.timeout = timeout
+
+    def make_connection(self, host):
+        return http.client.HTTPSConnection(host, context=ssl._create_unverified_context(), timeout=self.timeout)
+
 class Proxy:
     def __init__(self,client,name,method=""):
         self.client=client
@@ -293,8 +303,7 @@ class Proxy:
         #print('call {}@{}:{}:{}()'.format(self.client.server,self.client.port,self.name,self.method,args))
         
         try:
-            context=ssl._create_unverified_context()
-            proxy = xmlrpc.client.ServerProxy(self.client.address,context=context, allow_none=True)
+            proxy = xmlrpc.client.ServerProxy(self.client.address,transport = TimeoutTransport(self.client.timeout), allow_none=True)
             
             if (self.name==None):
                 response = getattr(proxy,self.method)(*args)
@@ -363,8 +372,10 @@ class Client:
     Client will create a proper Credential using given user/password/key.
     A Client can also be constructed from a single Ticket object.
     """
-    def __init__(self,address="https://127.0.0.1:9779",user=None,password=None,key=None,ticket=None,credential=None):
+    def __init__(self,address="https://127.0.0.1:9779",user=None,password=None,key=None,ticket=None,credential=None,timeout=5):
         
+        self.timeout = timeout
+
         if (ticket!=None and ticket.valid()):
             self.address = ticket.address
             self.credential = ticket.credential
