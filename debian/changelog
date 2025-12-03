@@ -1,3 +1,9 @@
+python-n4d-client (1.2.0.0) noble; urgency=medium
+
+  * Added a connection timout parameter (default to 5s) 
+
+ -- Enrique Medina Gremaldos <quique@necos.es>  Wed, 03 Dec 2025 13:34:02 +0100
+
 python-n4d-client (1.1.0.0) noble; urgency=medium
 
   * Added json input and output support
